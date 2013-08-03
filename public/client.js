@@ -1,11 +1,10 @@
 navigator.geolocation.getCurrentPosition(sendPosition);
 
 function sendPosition(position) {
-  data = {
+  var data = {
     latitude: position.coords.latitude, 
     longitude: position.coords.longitude
   };
-  console.log("sending request of", data);
   $.ajax({
     type: "POST",
     url: "/places",

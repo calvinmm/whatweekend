@@ -11,7 +11,7 @@ var latitude = 47.617248499999995;
 var longitude = -122.3297999;
 
 getYelpData(latitude, longitude);
-
+	
 function getYelpData(latitude, longitude) {
 	// #YOLO need strings
 	var loc = latitude.toString() + "," + longitude.toString();
