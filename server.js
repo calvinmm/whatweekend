@@ -30,8 +30,10 @@ app.post('/places', function(req, res) {
   });
 });
 
-console.log("starting server");
-server.listen(3000);
+var port = process.env.PORT || 5000;
+server.listen(port, function() {
+  console.log("Listening on", port);
+});
 
 function queryYelp(latitude, longitude) {
   var deferred = jquery.Deferred();
