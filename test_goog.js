@@ -23,7 +23,7 @@ function getGooglePlacesData(latitude, longitude, google_key) {
 		for (var index = 0; index < data.results.length; index++) {
 			var place = data.results[index];
 
-			console.log(place);
+			// console.log(place);
 			// if (place.events) {
 			// 	console.log(place.events);
 			// }
@@ -38,12 +38,16 @@ function getGooglePlacesData(latitude, longitude, google_key) {
 
 			// check if we have a photo
 			if (place.photos) {
-				var base_url = "https://maps.googleapis.com/maps/api/place/photo?sensor=true";
-				base_url += "&key=" + google_key;
-				var photo_ref = "&photoreference=";
+				var photo_url = "https://maps.googleapis.com/maps/api/place/photo?sensor=false";
+				photo_url += "&key=" + google_key;
+				photo_url += "&photoreference=" + place.photos[0].photo_reference;
+				photo_url += "&maxwidth=100&maxheight=100"
+
+				place_object.image = photo_url;
 			}
 
 			arr.push(place_object);
 		}
+		console.log(arr);
 	});
 }
