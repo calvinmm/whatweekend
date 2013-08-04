@@ -235,16 +235,16 @@ function queryFacebook(accessToken, latitude, longitude) {
     }
     var eventList = data.data;
     var goodEvents = [];
+    outer:
     for (var i = 0; i < eventList.length; i++) {
-			var title = eventList[i];
+			var title = eventList[i].name;
 			for (var j = 0; j < title.length; j++) {
 				if (title.charCodeAt(j) >= 128) {
-					console.log('fuck these unicode bitches');
-					continue;
+					continue outer;
 				}
 			}
       var eventObject = {
-        title: eventList[i].name,
+        title: title,
         locationString: eventList[i].location,
         src: "facebook",
         url: "http://facebook.com/" + eventList[i].id,
@@ -268,10 +268,9 @@ function combineActivities(res, yelpActivities, googleActivities, facebookActivi
 	var eventbritebias = 3;
 	for (; i < fbevents.length && j < eventbriteevents.length;) {
 		for (var k = 0; k < eventbritebias && j < eventbriteevents.length; k++) {
-			activities.events.push(eventbriteevents[j]);
-			j++;
+			activities.events.push(eventbriteevents[j++]);
 		}	
-		activities.events.push(fbevents[i]);
+		activities.events.push(fbevents[i++]);
 	}
 	for(; i < fbevents.length; i++) {
 		activities.events.push(fbevents[i]);

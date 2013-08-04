@@ -8,8 +8,8 @@ function renderIntroGraph(locationString) {
 	  var locationString = $("#input-location").val();
     readyToGoWithString(locationString);	
     $('#place-title').text(locationString);
-    $('.first-container').slideUp(900, function(){
-			$('.main-container').slideDown(900);
+    $('.first-container').slideUp(600, function(){
+			$('.main-container').slideDown(600);
 		});
 	});
 };
@@ -94,7 +94,7 @@ function addPlace(place, hide) {
       "<td>" + 
         "<div class='activity-item'>" +
         "<div class='title-div activity-item'>" +
-			    "<span class='checkxbuttons'><button id='buttonwant"+place.id +"' type='button' class='btn btn-success button-want'><i class='icon-ok'></i></button> <button id='buttonremove"+place.id + "'type='button' class='btn btn-danger button-remove'><i class='icon-remove'></i></button></span>"+
+			    "<span style='position: relative;' class='checkxbuttons'><button id='buttonwant"+place.id +"' type='button' class='btn btn-success button-want'><i class='icon-ok'></i></button> <button id='buttonremove"+place.id + "'type='button' class='btn btn-danger button-remove'><i class='icon-remove'></i></button></span>"+
           "<a target='_blank' href='" + 
             (place.url == undefined ? "#" : place.url) + "'>" + place.title + 
           "</a>" +  
@@ -106,8 +106,8 @@ function addPlace(place, hide) {
             "<br/>" +
             starsString + 
   			  "</div>" +
-			  "</div>" + 
           srcImg + 
+			  "</div>" + 
        "</div>"+
 		  "</td>"+
 		"</tr>";
@@ -128,7 +128,7 @@ function addEvent(eventItem, hide)
 			"<td>" + 
         "<div class='activity-item'>" +
 				"<div class='title-div activity-item'>" +
-			    "<span class='checkxbuttons'><button id='buttonwant" + eventItem.id +"' type='button' class='btn btn-success button-want'><i class='icon-ok'></i></button> <button id='buttonremove"+eventItem.id + "'type='button' class='btn btn-danger button-remove'><i class='icon-remove'></i></button></span>"+
+			    "<span style='position: relative;' class='checkxbuttons'><button id='buttonwant" + eventItem.id +"' type='button' class='btn btn-success button-want'><i class='icon-ok'></i></button> <button id='buttonremove"+eventItem.id + "'type='button' class='btn btn-danger button-remove'><i class='icon-remove'></i></button></span>"+
           "<a target='_blank' href='"+ 
           (eventItem.url == undefined ? "#" : eventItem.url)+"'>" + 
           eventItem.title + "</a>" + 
@@ -139,8 +139,8 @@ function addEvent(eventItem, hide)
             "<br />" +
             (eventItem.date == undefined ? "" : eventItem.date) +
 			    "</div>" + 
-			  "</div>" + 
         srcImg +
+			  "</div>" + 
        "</div>"+
 		  "</td>"+
 		"</tr>";
@@ -151,7 +151,7 @@ function displayThings(activities) {
   window.suggestedPlaces = activities.places;
 	window.suggestedEvents = activities.events;
 	window.plannedActivities = new Array();
-   
+  $("#potato").hide();   
   renderSuggestedPlaces();
   renderSuggestedEvents();
   renderPlannedActivities(); 

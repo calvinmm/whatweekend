@@ -82,7 +82,7 @@ function createEventFromPlan(events, locationthing) {
   maxTime = (new Date(maxTime)).toISOString();
   minTime = (new Date(minTime)).toISOString();
 	FB.api('/me', function(response) {
-		createEvent(response.name + "'s Weekend Adventure (Rager)!", minTime, maxTime, locationthing, description);
+		createEvent(response.name + "'s Weekend Adventure!", minTime, maxTime, locationthing, description);
 	});
 }
 

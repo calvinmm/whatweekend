@@ -39,12 +39,21 @@ window.fbAsyncInit = function() {
   }); 
 };
 
+$("#big-fb").click(function() {
+    FB.login(function (a) {}, { scope: 'create_event,offline_access' });
+});
+
 function fillLoggedInUser() {
   $("#fb-button").hide();
+  $("#not-logged-in").hide();
   $("#prof_image").show();
+  $("#input-location").show();
+  $("#button-location").show();
+  $("#div-input-location-in").show();
   FB.api("/me?fields=picture,name", function(data) {
     $("#name").text(data.name);
     $("#prof_image").attr("src", data.picture.data.url);
+    $("#logout").show();
   });
 }
 
@@ -87,6 +96,7 @@ function sendPositionAndFB(position, fbResponse) {
     longitude: position.coords.longitude,
     fbResponse: fbResponse
   };
+  $("#potato").show();
   $.ajax({
     type: "POST",
     url: "/places",

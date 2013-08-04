@@ -5,7 +5,6 @@
     <script src="assets/js/jquery-1.10.2.min.js"></script>
 	  <script src="assets/js/whatamidoingthisweekend.js"></script>
     <script src="assets/js/bootstrap-alert.js"></script>
-    <script src="client.js"></script> 
     
     <meta charset="utf-8">
     <title>What Am I Doing This Weekend</title>
@@ -43,31 +42,26 @@
             <span class="icon-bar"></span>
             <span class="icon-bar"></span>
           </button>
-          <a class="brand" href="#">Team Potato Otatop</a>
+          <a class="brand" href="index.html">Team Otatop</a>
           <div class="nav-collapse collapse">
-            <ul class="nav">
-              <li class="active"><a href="#">Home</a></li>
-              <li><a href="#about">About</a></li>
-              <li><a href="#contact">Contact</a></li>
-            </ul>
 			  <ul class="nav  pull-right">
-          <li><a><img id="prof_image" class="img-profile" src="http://placehold.it/1x1" style="border: 0; display: none;" alt="Planned Image" height="23" width="23">
-            <fb:login-button id="fb-button" scope="create_event" width="200" max-rows="1"></fb:login-button>
-            <span id="name"></span></a></li>
+          <li><a style="display: inline-block; padding-right:0; padding-left:0;"><img id="prof_image" class="img-profile" src="http://placehold.it/1x1" style="border: 0; display: none;" alt="Planned Image" height="23" width="23"></a>
+            <fb:login-button id="fb-button" style="display: none;" scope="create_event" width="200" max-rows="1"></fb:login-button>
+            <span><a style="display: inline-block; padding-right:0; padding-left:0;" id="name"></a><a href="javascript:{FB.logout(); $('#logout').hide();}" id="logout" style="display: inline-block; padding-right:0; padding-left:0; margin-left: 5px; display: none;">Logout</a></span></a></li>
             </ul>
           </div><!--/.nav-collapse -->
         </div>
       </div>
     </div>
 
-  <div class="first-container">
+  <div class="first-container container">
 		<div class="first-inner-container">
 			<div class="first-title">WHAT AM I DOING THIS WEEKEND?!</div>
-			<div id="div-input-location-in">if i'm in</div>
-
-			<div class="div-input-location"><input type="text" id="input-location" class="input-large large-btn" placeholder="Location..." /><br/>
-			<div id="my_map"></div>
-			<button id="button-location" type="button" class="btn btn-primary btn-large">Show me some activities!</button></div>
+			<div id="div-input-location-in" style="display: none;">if i'm in...</div>
+			<div class="div-input-location"><input style="display: none;" type="text" id="input-location" class="input-large large-btn" placeholder="Location..." /><br/>	
+      <div id="not-logged-in" style="font-size: 14px;"><button class="btn btn-large btn-facebook" id="big-fb"><i class="icon-facebook"></i> | Log into Facebook to find out!</button></div>
+      <div id="my_map"></div>
+			<button id="button-location" style="display: none;" type="button" class="btn btn-primary btn-large">Show me some activities!</button></div>
 			<div id="powered-by">Powered by <img src="assets/img/favicon-google.jpg" alt="GoogleFavicon" height="23" width="23">
 			<img src="assets/img/favicon-facebook.jpg" alt="FacebookFavicon" height="23" width="23">
 			<img src="assets/img/favicon-yelp.jpg" alt="YelpFavicon" height="23" width="23">
@@ -75,6 +69,9 @@
 		</div>
   </div>
 		
+    <div id="test">
+      <img id="potato" src="assets/img/potato.gif" />
+    </div>
 
     <div class="main-container container">
 
@@ -130,5 +127,6 @@
 
     <!-- JAVASCRIPT -->
     <script src="create-event.js"></script> 
+    <script src="client.js"></script> 
     </body>
 </html>
