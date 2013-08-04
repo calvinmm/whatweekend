@@ -133,14 +133,14 @@ function combineActivities(res, yelpActivities, googleActivities) {
   res.send(activities);
 }
 
-function basicRatingSort(o1, o2) {
+function placesSort(o1, o2) {
   var val1 = o1.rating;
   var val2 = o2.rating;
   if (o1.src == "yelp") {
-    val1 -= .06;
+    val1 -= .6;
   }
-  if (o2.src == "google") {
-    val2 -= .06;
+  if (o2.src == "yelp") {
+    val2 -= .6;
   }
   return val2 - val1;
 }
