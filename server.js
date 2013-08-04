@@ -165,18 +165,19 @@ function queryEventbrite(lat, lng) {
       var d = new Date(getWeekendDate());
       var e = new Date(event.start_date.replace(/-/g, "/").split(" ")[0]);
 
-      if (e >= d) {
+			// We need more results yo. Who gives a shit about the date anyway
+      //if (e >= d) {
         var event_object = {
           title: jquery(title).text(),
           description: jquery(desc).text(),
           location: event.venue.address+", "+event.venue.city+", "+event.venue.region+", "+event.venue.country_code,
           link:event.url,
-          start: new Date(event.start_date.replace(/-/g, "/").split(" ")[0]).getTime(),
-          end: new Date(event.end_date.replace(/-/g, "/").split(" ")[0]).getTime(),
+          start: new Date(event.start_date.replace(/-/g, "/")).getTime(),
+          end: new Date(event.end_date.replace(/-/g, "/")).getTime(),
           src:"eventbrite"
         };
         events.push(event_object);  
-      }
+      //}
     }
 
     activities.events = events;
