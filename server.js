@@ -66,7 +66,8 @@ function queryYelp(latitude, longitude) {
 				location: addr.join(", "),
 				rating: place.rating,
 				image: place.image_url,
-				url: place.url
+				url: place.url,
+        src: "yelp"
 			}
 			places.push(place_object);
 		}
@@ -96,7 +97,8 @@ function queryGoogle(latitude, longitude) {
 				title: place.name,
 				location: place.vicinity,
 				rating: place.rating,
-				image: place.icon
+				image: place.icon,
+        src: "google"
 			};
 
 			// check if we have a photo
@@ -125,10 +127,22 @@ function combineActivities(res, yelpActivities, googleActivities) {
   activities.places = activities.places.concat(googleActivities.places);
   activities.events = activities.events.concat(googleActivities.events);
 
-  activities.places.sort(basicRatingSort);
+  activities.places.sort(placesSort);
   activities.events.sort(basicRatingSort);
   
   res.send(activities);
+}
+
+function basicRatingSort(o1, o2) {
+  var val1 = o1.rating;
+  var val2 = o2.rating;
+  if (o1.src == "yelp") {
+    val1 -= .06;
+  }
+  if (o2.src == "google") {
+    val2 -= .06;
+  }
+  return val2 - val1;
 }
 
 function basicRatingSort(o1, o2) {
