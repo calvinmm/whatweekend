@@ -1,7 +1,8 @@
 var express = require('express'),
   app = express(),
   server = require('http').createServer(app),
-  jquery = require('jquery');
+  jquery = require('jquery'),
+  graph = require('fbgraph');
 
 var yelp = require("yelp").createClient({
 	consumer_key: "Mgx8tTDuckOqg6SRwo0xXw",
@@ -10,12 +11,24 @@ var yelp = require("yelp").createClient({
 	token_secret: "-b76j1LnR23hw-2VRY-sZy_Iz9o"
 });
 
+var conf = {
+    client_id:      '1400334646854257',
+    client_secret:  '2968d9a732601e9bf61bb3302afa79fe',
+    scope:          'email, user_about_me, friends_events, user_events, user_location' 
+};
+
+
 var GooglePlaces = require('google-places');
 
 var googleKey = 'AIzaSyBB_GWDaFo8MeewytsNAEqNlQkFCwI06As';
 
 var googlePlaces = new GooglePlaces(googleKey);
 
+/*var Eventbrite = require('eventbrite');
+
+var eventbrite_key = 'ILKRGFR2MTYO67PCJ7';
+
+var eb_client = new Eventbrite({'app_key': eventbrite_key});*/
 
 app.configure(function() {
   app.use(express.static(__dirname + '/public'));
@@ -27,13 +40,21 @@ app.post('/places', function(req, res) {
   var latitude = req.body.latitude;
   var longitude = req.body.longitude;
   
-  
+  var accessToken = req.body.fbResponse.authResponse.accessToken;
+  var userID = req.body.fbResponse.authResponse.userID;
+ 
+  req.session = {};
+  req.session.accessToken = accessToken;
+  req.session.userID = userID;
+ 
   var yelpDeferred = queryYelp(latitude, longitude);
   var googleDeferred = queryGoogle(latitude, longitude);
+  var facebookDeferred = queryFacebook(accessToken, latitude, longitude);
+	//var eventbriteDeferred = queryEventbrite(latitude, longitude);
 
-  jquery.when(yelpDeferred, googleDeferred).done(
-      function(yelpActivities, googleActivities) { 
-          combineActivities(res, yelpActivities, googleActivities);
+  jquery.when(yelpDeferred, googleDeferred, facebookDeferred/*, eventbriteDeferred*/).done(
+      function(yelpActivities, googleActivities, facebookActivities/*, eventbriteActivities*/) { 
+          combineActivities(res, yelpActivities, googleActivities, facebookActivities/*, eventbriteActivities*/);
   });
 });
 
@@ -63,7 +84,7 @@ function queryYelp(latitude, longitude) {
 			// build our place object
 			var place_object = {
 				title: place.name,
-				location: addr.join(", "),
+				locationString: addr.join(", "),
 				rating: place.rating,
 				image: place.image_url,
 				url: place.url,
@@ -95,10 +116,10 @@ function queryGoogle(latitude, longitude) {
 			// build our place object
 			var placeObject = {
 				title: place.name,
-				location: place.vicinity,
+				locationString: place.vicinity,
 				rating: place.rating,
 				image: place.icon,
-        src: "google"
+        			src: "google"
 			};
 
 			// check if we have a photo
@@ -118,7 +139,76 @@ function queryGoogle(latitude, longitude) {
   return deferred;
 }
 
-function combineActivities(res, yelpActivities, googleActivities) {
+/*function queryEventbrite(lat, lng) {
+        // array rused to hold return data
+	var deferred = jquery.Deferred();
+	var activities = {events : [], places : []};
+
+	var events = [];
+	// Get date! Can filter events by it.
+	var startDate, endDate;  // YYYY
+	var goodCategories = "comedy,food,movies,music,outdoors,social,sports,entertainment";
+	eb_client.event_search({within:10, within_unit:"K", latitude:lat, longitude:lng, date:startDate+" "+endDate, category:goodCategories}, function(error, response) {
+		if (error) {
+			deferred.reject(error);
+		}
+		// First element is a "summary"
+		for (var i = 1; i < response.events.length; i++) {
+			var event = response.events[i].event;
+			var event_object = {
+				title:'hi',//jquery(event.title).text(),
+				description:'hi',//jquery(event.description).text(),
+				location: event.venue.address+", "+event.venue.city+", "+event.venue.region+", "+event.venue.country_code,
+				link:event.url,
+				start:5,// parse event.start_date
+				end:6,// parse event.end_date
+				src:"eventbrite"
+			};
+			events.push(event_object);  
+		}
+		activities.events = events;
+		deferred.resolve(activities);
+	});
+	return deferred;
+}*/
+
+function queryFacebook(accessToken, latitude, longitude) {
+  var deferred = jquery.Deferred();
+  var activities = {events : [], places : []};
+  
+  var searchOptions = {
+    q: "*",
+    type:  "event",
+    center: latitude + "," + longitude,  
+    distance: 10000,
+    start: "saturday",
+    until: "monday",
+    limit: 50
+  };
+  graph.setAccessToken(accessToken);
+  graph.search(searchOptions, function(err, data) {
+    if (err) {
+      console.log(err); 
+    }
+    var eventList = data.data;
+    var goodEvents = [];
+    for (var i = 0; i < eventList.length; i++) {
+      var eventObject = {
+        title: eventList[i].name,
+        locationString: eventList[i].location,
+        src: "facebook",
+        url: "http://facebook.com/" + eventList[i].id,
+        date: eventList[i].start_time
+      }
+      goodEvents.push(eventObject);
+    }
+    activities.events = goodEvents;
+    deferred.resolve(activities);
+  });
+  return deferred;
+}
+
+function combineActivities(res, yelpActivities, googleActivities, facebookActivities/*, eventbriteActivities*/) {
   var activities = {events : [], places : []};
   
   // Combine all activities and places
@@ -126,10 +216,12 @@ function combineActivities(res, yelpActivities, googleActivities) {
   activities.events = activities.events.concat(yelpActivities.events);
   activities.places = activities.places.concat(googleActivities.places);
   activities.events = activities.events.concat(googleActivities.events);
+  activities.places = activities.places.concat(facebookActivities.places);
+  activities.events = activities.events.concat(facebookActivities.events);
+	// activities.places = activities.places.concat(eventbriteActivities.places);
+	// activities.events = activities.events.concat(eventbriteActivities.events);
 
   activities.places.sort(placesSort);
-  activities.events.sort(basicRatingSort);
-  
   res.send(activities);
 }
 
@@ -143,8 +235,4 @@ function placesSort(o1, o2) {
     val2 -= .6;
   }
   return val2 - val1;
-}
-
-function basicRatingSort(o1, o2) {
-  return o2.rating - o1.rating;
 }

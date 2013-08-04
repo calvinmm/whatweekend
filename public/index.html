@@ -1,59 +1,110 @@
-<html>
-<head>
-<script src="jquery-1.7.2.min.js"></script>
-<script src="client.js"></script>  
-</style>
-</head>
-<body>
-<div id="fb-root"></div>
-<script>
-  // Additional JS functions here
-  window.fbAsyncInit = function() {
-    FB.init({
-      appId      : '1400334646854257', // App ID
-      channelUrl : 'channel.html', // Channel File
-      status     : true, // check login status
-      cookie     : true, // enable cookies to allow the server to access the session
-      xfbml      : true  // parse XFBML
-    });
 
-    // Additional init code here
-    FB.Event.subscribe('auth.authResponseChange', function(response) {
-      // Here we specify what we do with the response anytime this event occurs. 
-      if (response.status === 'connected') {
-        // The response object is returned with a status field that lets the app know the current
-        // login status of the person. In this case, we're handling the situation where they 
-        // have logged in to the app.
-        testAPI();
-      } else if (response.status === 'not_authorized') {
-        // In this case, the person is logged into Facebook, but not into the app, so we call
-        // FB.login() to prompt them to do so. 
-        // In real-life usage, you wouldn't want to immediately prompt someone to login 
-        // like this, for two reasons:
-        // (1) JavaScript created popup windows are blocked by most browsers unless they 
-        // result from direct interaction from people using the app (such as a mouse click)
-        // (2) it is a bad experience to be continually prompted to login upon page load.
-        FB.login();
-      } else {
-        // In this case, the person is not logged into Facebook, so we call the login() 
-        // function to prompt them to do so. Note that at this stage there is no indication
-        // of whether they are logged into the app. If they aren't then they'll see the Login
-        // dialog right after they log in to Facebook. 
-        // The same caveats as above apply to the FB.login() call here.
-        FB.login();
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <script src="assets/js/jquery-1.10.2.min.js"></script>
+	  <script src="assets/js/whatamidoingthisweekend.js"></script>
+    <script src="client.js"></script>   
+    <script src="geocode.js"></script>
+    <meta charset="utf-8">
+    <title>What Am I Doing This Weekend</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <!-- STYLES -->
+    <link href="assets/bootstrap/css/bootstrap.css" rel="stylesheet">
+	<link href="assets/css/whatamidoingthisweekend.css" rel="stylesheet">
+    <style>
+      body {
+        padding-top: 60px; /* 60px to make the container go all the way to the bottom of the topbar */
       }
-    });
-  };
+    </style>
+    <link href="assets/bootstrap/css/bootstrap-responsive.css" rel="stylesheet">
+	<link rel="stylesheet" href="assets/bootstrap/font-awesome/css/font-awesome.min.css">
 
-  // Load the SDK asynchronously
-  (function(d){
-     var js, id = 'facebook-jssdk', ref = d.getElementsByTagName('script')[0];
-     if (d.getElementById(id)) {return;}
-     js = d.createElement('script'); js.id = id; js.async = true;
-     js.src = "//connect.facebook.net/en_US/all.js";
-     ref.parentNode.insertBefore(js, ref);
-   }(document));
-</script>
-<fb:login-button show-faces="true" width="200" max-rows="1"></fb:login-button>
-</body>
+    <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!--[if lt IE 9]>
+      <script src="../assets/js/html5shiv.js"></script>
+    <![endif]-->
+
+  </head>
+
+  <body>
+    <div id="fb-root"></div>
+    <fb:login-button show-faces="true" width="200" max-rows="1"></fb:login-button>
+    <div class="navbar navbar-inverse navbar-fixed-top">
+      <div class="navbar-inner">
+        <div class="container">
+          <button type="button" class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="brand" href="#">Team Potato Otatop</a>
+          <div class="nav-collapse collapse">
+            <ul class="nav">
+              <li class="active"><a href="#">Home</a></li>
+              <li><a href="#about">About</a></li>
+              <li><a href="#contact">Contact</a></li>
+            </ul>
+			 <ul class="nav  pull-right">
+              <li><a href="#"><img class="img-profile" src="http://placehold.it/23x23" alt="Planned Image" height="23" width="23"> Logged in as <span id="name"> Emily Tran<span></a></li>
+            </ul>
+          </div><!--/.nav-collapse -->
+        </div>
+      </div>
+    </div>
+
+    <div class="container">
+
+      <h1>What Am I Doing This Weekend<span class="title-desc"> in <span class="title-location">Seattle, WA</span></span></h1>
+	
+	
+	<div class="row">
+
+		<div class="span4">
+			 <table class="table">
+              <thead>
+                <tr>
+                  <th>Suggested Places</th>
+                </tr>
+				
+				
+              </thead>
+			  
+              <tbody id="suggested-places">
+              </tbody>
+            </table>
+		</div>
+		<div class="span4">
+				<table class="table">
+              <thead>
+                <tr>
+                  <th>Suggested Events</th>
+                </tr>
+              </thead>
+			  
+              <tbody id="suggested-events">
+              </tbody>
+            </table>
+		</div>
+
+		<div class="span4" id="column-planned">
+			  <table class="table">
+              <thead>
+                <tr>
+                  <th>Planned</th>
+                </tr>
+              </thead>
+			  
+              <tbody id="planned-activities">				
+              </tbody>
+            </table>
+		</div>
+		
+		    </div> <!-- /container -->
+
+    <!-- JAVASCRIPT -->
+    </body>
 </html>

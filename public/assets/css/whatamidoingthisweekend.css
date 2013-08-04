@@ -1,0 +1,95 @@
+body
+{
+	background: #D6C2AD;
+}
+
+.checkxbuttons
+{
+	float: right;
+	padding: 5px;
+}
+
+.activity-item {
+  width : 100%;
+  overflow : hidden;
+  text-overflow : ellipsis;
+  -o-text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.item-content
+{
+	width : 100%;
+  overflow : hidden;
+  text-overflow : ellipsis;
+  -o-text-overflow: ellipsis;
+  white-space: nowrap;
+
+  font-weight: bold;
+	padding-left: 10px;
+	float: left;
+}
+
+.item-tile
+{
+  width : 100%;
+  overflow : hidden;
+  text-overflow : ellipsis;
+  -o-text-overflow: ellipsis;
+  white-space: nowrap;
+
+	text-align: left;
+   padding-top: 15px;
+}
+
+.item-img
+{
+	float: left;
+}
+
+.table td
+{
+	border:none;
+}
+
+table {
+  table-layout: fixed;
+  width:  100%;
+}
+
+th
+{
+	font-size: 1.4em;
+	color: #716F6D;
+   border-bottom: 1pt solid #716F6D;
+}
+
+.title-desc
+{
+	color:  #716F6D;
+}
+
+#column-planed:
+{
+	border-left: 2pt solid black;
+}
+
+.pull-right
+{
+	float: right;
+}
+
+#name
+{
+	color: white; 
+}
+
+.img-profile
+{
+	padding-right: 5px;
+}
+
+h1
+{
+	text-align: center;
+}
