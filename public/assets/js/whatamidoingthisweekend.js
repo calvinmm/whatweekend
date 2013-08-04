@@ -1,3 +1,19 @@
+function renderIntroGraph(locationString) {
+	$("#input-location").geocomplete({ map: "#my_map", location: locationString});  // Option 1: Call on element.
+	
+	$('.first-container').attr('width', $(window).width() + 'px');
+	$('.first-container').attr('height', $(window).height() + 'px');
+	
+	$('#button-location').click(function(){
+	  var locationString = $("#input-location").val();
+    readyToGoWithString(locationString);	
+    $('#place-title').text(locationString);
+    $('.first-container').slideUp(900, function(){
+			$('.main-container').slideDown(900);
+		});
+	});
+};
+
 function renderSuggestedEvents() {
   var newHtml = "";
   for(i = 0; i < window.suggestedEvents.length && i < 5; i++) {
@@ -65,7 +81,14 @@ function addPlace(place, hide) {
   place.id = Math.floor(Math.random() * 1000000000 + 1);
 	var starsString = stars(place.rating);
   var temp_thing = "<img class='item-img' src='" + place.image + 
-          "' alt='Planned Image' height='100' width='100'>";
+          "' alt='Planned Image' style='max-height: 100px; max-width: 100px;'>";
+  var srcImg = "";
+  if (place.src == "yelp") {
+    srcImg = "<img src='assets/img/favicon-yelp.jpg' alt='Yelp' class='pull-right' width='20' height='20'>"
+  } else {
+    srcImg = "<img src='assets/img/favicon-google.jpg' alt='Google' class='pull-right' width='20' height='20'>"
+  }
+  
   var toReturn =  
     "<tr id='place" + place.id + "' style='" + (hide ? "display: none;" : "") + "'>" + 
       "<td>" + 
@@ -82,8 +105,10 @@ function addPlace(place, hide) {
             place.locationString + 
             "<br/>" +
             starsString + 
-  			  "</div>" + 
-			  "</div></div>"+
+  			  "</div>" +
+			  "</div>" + 
+          srcImg + 
+       "</div>"+
 		  "</td>"+
 		"</tr>";
   return toReturn;
@@ -92,7 +117,12 @@ function addPlace(place, hide) {
 function addEvent(eventItem, hide)
 {
   eventItem.id = Math.floor(Math.random() * 1000000000 + 1);
-	console.log(eventItem);
+  var srcImg = "";
+  if (eventItem.src == "facebook") {
+    srcImg = "<img src='assets/img/favicon-facebook.jpg' alt='Facebook' class='pull-right' width='20' height='20'>"
+  } else {
+    srcImg = "<img src='assets/img/favicon-eventbrite.jpg' alt='Eventbrite' class='pull-right' width='20' height='20'>"
+  }
   var toReturn =
     "<tr id='event" + eventItem.id+"' style='" + (hide ? "display: none;" : "") + "'>" + 
 			"<td>" + 
@@ -109,7 +139,9 @@ function addEvent(eventItem, hide)
             "<br />" +
             (eventItem.date == undefined ? "" : eventItem.date) +
 			    "</div>" + 
-			  "</div></div>"+
+			  "</div>" + 
+        srcImg +
+       "</div>"+
 		  "</td>"+
 		"</tr>";
   return toReturn;

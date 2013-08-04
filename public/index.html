@@ -24,6 +24,8 @@
     </style>
     <link href="assets/bootstrap/css/bootstrap-responsive.css" rel="stylesheet">
   	<link rel="stylesheet" href="assets/bootstrap/font-awesome/css/font-awesome.min.css">
+    <script src="http://maps.googleapis.com/maps/api/js?sensor=false&amp;libraries=places"></script>
+	<script src="assets/js/geocomplete/jquery.geocomplete.js"></script>
 
     <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
     <!--[if lt IE 9]>
@@ -31,7 +33,7 @@
     <![endif]-->
 
   </head>
-
+  
   <body>
     <div class="navbar navbar-inverse navbar-fixed-top">
       <div class="navbar-inner">
@@ -48,36 +50,50 @@
               <li><a href="#about">About</a></li>
               <li><a href="#contact">Contact</a></li>
             </ul>
-			 <ul class="nav  pull-right">
-              <li><a href="#"><img class="img-profile" src="http://placehold.it/23x23" alt="Planned Image" height="23" width="23"> Logged in as <span id="name"> Emily Tran<span></a></li>
+			  <ul class="nav  pull-right">
+          <li><a><img id="prof_image" class="img-profile" src="http://placehold.it/1x1" style="border: 0; display: none;" alt="Planned Image" height="23" width="23">
+            <fb:login-button id="fb-button" scope="create_event" width="200" max-rows="1"></fb:login-button>
+            <span id="name"></span></a></li>
             </ul>
           </div><!--/.nav-collapse -->
         </div>
       </div>
     </div>
 
-    <div class="container">
+  <div class="first-container">
+		<div class="first-inner-container">
+			<div class="first-title">WHAT AM I DOING THIS WEEKEND?!</div>
+			<div id="div-input-location-in">if i'm in</div>
 
-      <h1>What Am I Doing This Weekend<span class="title-desc"> in <span class="title-location">Seattle, WA</span></span></h1>
+			<div class="div-input-location"><input type="text" id="input-location" class="input-large large-btn" placeholder="Location..." /><br/>
+			<div id="my_map"></div>
+			<button id="button-location" type="button" class="btn btn-primary btn-large">Show me some activities!</button></div>
+			<div id="powered-by">Powered by <img src="assets/img/favicon-google.jpg" alt="GoogleFavicon" height="23" width="23">
+			<img src="assets/img/favicon-facebook.jpg" alt="FacebookFavicon" height="23" width="23">
+			<img src="assets/img/favicon-yelp.jpg" alt="YelpFavicon" height="23" width="23">
+			<img src="assets/img/favicon-eventbrite.jpg" alt="EventBriteFavicon" height="23" width="23"></div>
+		</div>
+  </div>
+		
+
+    <div class="main-container container">
+
+      <h1>What Am I Doing This Weekend<span class="title-desc"> in <span id="place-title" class="title-location"></span></span></h1>
 	
 	
 		<div class="row">
-
     <div id="fb-root"></div>
-    <fb:login-button show-faces="true" width="200" max-rows="1"></fb:login-button>
 
     <div class="alert alert-info" style="display: none;">
 		  <a class="close" data-dismiss="alert" href="#">&times;</a>
 		  <div><strong>YOLO!</strong>whaaaat</div>
     </div>
 
-		<button id="create-event-button" class="btn btn-facebook"><i class="icon-facebook"></i> | Export Event to Facebook</button>
-
     <div class="span4" id="column-planned">
 			  <table class="table">
               <thead>
                 <tr>
-                  <th>Planned</th>
+                  <th>Planned <button id="create-event-button" class="btn btn-small btn-facebook pull-right"><i class="icon-facebook"></i> | Export Event to Facebook</button></th>
                 </tr>
               </thead>
 			  
@@ -89,7 +105,7 @@
 			 <table class="table">
               <thead>
                 <tr>
-                  <th>Suggested Places</th>
+                  <th style="padding-bottom: 14px;">Suggested Places</th>
                 </tr>
 				
               </thead>
@@ -102,7 +118,7 @@
 				<table class="table">
               <thead>
                 <tr>
-                  <th>Suggested Events</th>
+                  <th style="padding-bottom: 14px;">Suggested Events</th>
                 </tr>
               </thead>
 			  
@@ -113,5 +129,6 @@
 		    </div> <!-- /container -->
 
     <!-- JAVASCRIPT -->
+    <script src="create-event.js"></script> 
     </body>
 </html>

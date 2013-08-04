@@ -16,6 +16,8 @@ window.fbAsyncInit = function() {
       // The response object is returned with a status field that lets the app know the current
       // login status of the person. In this case, we're handling the situation where they 
       // have logged in to the app.
+      fillLoggedInUser();
+      window.accessToken = response.authResponse.accessToken;
       readyToGo(response);
     } else if (response.status === 'not_authorized') {
       // In this case, the person is logged into Facebook, but not into the app, so we call
@@ -25,17 +27,26 @@ window.fbAsyncInit = function() {
       // (1) JavaScript created popup windows are blocked by most browsers unless they 
       // result from direct interaction from people using the app (such as a mouse click)
       // (2) it is a bad experience to be continually prompted to login upon page load.
-      FB.login();
+      FB.login(function (a) {}, { scope: 'create_event,offline_access' });
     } else {
       // In this case, the person is not logged into Facebook, so we call the login() 
       // function to prompt them to do so. Note that at this stage there is no indication
       // of whether they are logged into the app. If they aren't then they'll see the Login
       // dialog right after they log in to Facebook. 
       // The same caveats as above apply to the FB.login() call here.
-      FB.login();
+      FB.login(function (a) {}, { scope: 'create_event,offline_access' });
     }
   }); 
 };
+
+function fillLoggedInUser() {
+  $("#fb-button").hide();
+  $("#prof_image").show();
+  FB.api("/me?fields=picture,name", function(data) {
+    $("#name").text(data.name);
+    $("#prof_image").attr("src", data.picture.data.url);
+  });
+}
 
 // Load the SDK asynchronously
 (function(d){
@@ -46,11 +57,27 @@ window.fbAsyncInit = function() {
    ref.parentNode.insertBefore(js, ref);
  }(document));
 
-
+function readyToGoWithString(locationString) {
+  var deferred = getLatLongFromPlace(locationString);
+  $.when(deferred).done(function(data) {
+    var position = {
+      coords : {
+        latitude : data.lat,
+        longitude: data.lng
+      } 
+    };
+    sendPositionAndFB(position, window.fbResponse);
+  });
+}
 
 function readyToGo(fbResponse) {
   navigator.geolocation.getCurrentPosition(function (position) {
-      sendPositionAndFB(position, fbResponse); 
+    window.fbResponse = fbResponse;
+    var deferred = getPlaceFromLatLong(position.coords.latitude, position.coords.longitude);
+    $.when(deferred).done(function(loc) { 
+      window.locationString = loc;
+      renderIntroGraph(loc); 
+    });
   });
 }
 
@@ -78,8 +105,7 @@ function getPlaceFromLatLong(lat, lng) {
 	$.getJSON(url, function(data) {
 		var city = undefined;
 		var state = undefined;
-
-		$.each(data.results.address_components, function(index, component) {
+		$.each(data.results[0].address_components, function(index, component) {
 			if (component.types.indexOf("locality") >= 0) {
 				city = component.short_name;
 			} else if (component.types.indexOf("administrative_area_level_1") >= 0) {
@@ -100,7 +126,7 @@ function getLatLongFromPlace(place) {
 	url += place;
 
 	$.getJSON(url, function(data) {
-		deferred.resolve(data.results.geometry.location);
+		deferred.resolve(data.results[0].geometry.location);
 	});
   return deferred;
 }
