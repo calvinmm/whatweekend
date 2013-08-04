@@ -46,9 +46,11 @@ window.fbAsyncInit = function() {
    ref.parentNode.insertBefore(js, ref);
  }(document));
 
+
+
 function readyToGo(fbResponse) {
   navigator.geolocation.getCurrentPosition(function (position) {
-    sendPositionAndFB(position, fbResponse);
+      sendPositionAndFB(position, fbResponse); 
   });
 }
 
@@ -69,37 +71,36 @@ function sendPositionAndFB(position, fbResponse) {
 }
 
 function getPlaceFromLatLong(lat, lng) {
-  var url = "http://maps.googleapis.com/maps/api/geocode/json?sensor=false&latlng=";
-  url += lat + "," + lng;
+	var deferred = $.Deferred();
+	var url = "http://maps.googleapis.com/maps/api/geocode/json?sensor=false&latlng=";
+	url += lat + "," + lng;
 
-  $.getJSON(url, function(data) {
-    var city = undefined;
-    var state = undefined;
+	$.getJSON(url, function(data) {
+		var city = undefined;
+		var state = undefined;
 
-    $.each(data.results.address_components, function(index, component) {
-      if (component.types.indexOf("locality") >= 0) {
-        city = component.short_name;
-      } else if (component.types.indexOf("administrative_area_level_1") >= 0) {
-        state = component.short_name;
-      }
-    });
+		$.each(data.results.address_components, function(index, component) {
+			if (component.types.indexOf("locality") >= 0) {
+				city = component.short_name;
+			} else if (component.types.indexOf("administrative_area_level_1") >= 0) {
+				state = component.short_name;
+			}
+		});
 
-    if (city && state)
-      return city +", "+ state;
-    return "";
-  });
+		if (city && state)
+			deferred.resolve(city +", "+ state);
+		deferred.resolve("");
+	});
+  return deferred;
 }
 
 function getLatLongFromPlace(place) {
+	var deferred = $.Deferred();
   var url = "http://maps.googleapis.com/maps/api/geocode/json?sensor=false&address=";
-  url += place;
+	url += place;
 
-  // $.ajax({
-  //   async: false
-  // });
-
-  $.getJSON(url, function(data) {
-    console.log(data.results[0].geometry.location);
-    return data.results[0].geometry.location;
-  });
+	$.getJSON(url, function(data) {
+		deferred.resolve(data.results.geometry.location);
+	});
+  return deferred;
 }

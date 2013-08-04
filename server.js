@@ -148,7 +148,7 @@ function queryEventbrite(lat, lng) {
   var startDate = formatDate(new Date(getWeekendDate()));
 
   var goodCategories = "comedy,food,movies,music,outdoors,social,sports,entertainment";
-  eb_client.event_search({within:100, within_unit:"K", latitude:lat, longitude:lng, date:startDate+" "+startDate, category:goodCategories, max:100}, function(error, response) {
+  eb_client.event_search({within:20, within_unit:"K", latitude:lat, longitude:lng, date:startDate+" "+startDate, category:goodCategories, max:50}, function(error, response) {
     if (error) {
       deferred.reject(error);
     }
@@ -165,15 +165,44 @@ function queryEventbrite(lat, lng) {
       var d = new Date(getWeekendDate());
       var e = new Date(event.start_date.replace(/-/g, "/").split(" ")[0]);
 
+			var hack_date = formatDate(d);
+			var start_date = hack_date +" " + event.start_date.replace(/-/g, "/").split(" ")[1];
+			var end_date = hack_date + " " + event.end_date.replace(/-/g, "/").split(" ")[1];
+			var locationString = '';
+			if (event.venue) {
+				if (event.venue.address) {
+					locationString += event.venue.address;
+				}
+				if (event.venue.city) {
+					if (locationString) {
+						locationString += ', ';
+					}
+					locationString += event.venue.city;
+				}
+				if (event.venue.region) {
+					if (locationString) {
+						locationString += ', ';	
+					}
+					locationString += event.venue.region;
+				}
+				if (event.venue.country_code) {
+					if (locationString) {
+						locationString += ', ';
+					}
+					locationString += event.venue.country_code;
+				}		
+			}	else {
+				locationString = 'This event has no location.';
+			}
 			// We need more results yo. Who gives a shit about the date anyway
       //if (e >= d) {
         var event_object = {
           title: jquery(title).text(),
           description: jquery(desc).text(),
-          location: event.venue.address+", "+event.venue.city+", "+event.venue.region+", "+event.venue.country_code,
-          link:event.url,
-          start: new Date(event.start_date.replace(/-/g, "/")).getTime(),
-          end: new Date(event.end_date.replace(/-/g, "/")).getTime(),
+          locationString: locationString,
+          url:event.url,
+          start: new Date(start_date).getTime(),
+          end: new Date(end_date).getTime(),
           src:"eventbrite"
         };
         events.push(event_object);  
@@ -224,9 +253,26 @@ function queryFacebook(accessToken, latitude, longitude) {
 
 function combineActivities(res, yelpActivities, googleActivities, facebookActivities, eventbriteActivities) {
   var activities = {events : [], places : []};
-  
+
+	var fbevents = facebookActivities.events;
+	var eventbriteevents = eventbriteActivities.events;
+	var i = 0;
+	var j = 0;
+	var eventbritebias = 3;
+	for (; i < fbevents.length && j < eventbriteevents.length;) {
+		for (var k = 0; k < eventbritebias && j < eventbriteevents.length; k++) {
+			activities.events.push(eventbriteevents[j]);
+			j++;
+		}	
+		activities.events.push(fbevents[i]);
+	}
+	for(; i < fbevents.length; i++) {
+		activities.events.push(fbevents[i]);
+	}
+	for(; j < eventbriteevents.length; j++) {
+		activities.events.push(eventbriteevents[j]);
+	}
   // Combine all activities and places
-  activities.places = activities.places.concat(eventbriteActivities.places);
   activities.events = activities.events.concat(eventbriteActivities.events);
 
   activities.places = activities.places.concat(yelpActivities.places);
@@ -236,7 +282,6 @@ function combineActivities(res, yelpActivities, googleActivities, facebookActivi
   activities.events = activities.events.concat(googleActivities.events);
 
   activities.places = activities.places.concat(facebookActivities.places);
-  activities.events = activities.events.concat(facebookActivities.events);
 
   activities.places.sort(placesSort);
   res.send(activities);

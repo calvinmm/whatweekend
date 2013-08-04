@@ -92,7 +92,8 @@ function addPlace(place, hide) {
 function addEvent(eventItem, hide)
 {
   eventItem.id = Math.floor(Math.random() * 1000000000 + 1);
-	var toReturn =
+	console.log(eventItem);
+  var toReturn =
     "<tr id='event" + eventItem.id+"' style='" + (hide ? "display: none;" : "") + "'>" + 
 			"<td>" + 
         "<div class='activity-item'>" +
@@ -104,7 +105,9 @@ function addEvent(eventItem, hide)
         "</div>" +
 			  "<div class='item-tile activity-item'>" + 
 			    "<div class='item-content activity-item'>" +
-			      eventItem.locationString + 
+			      (eventItem.locationString == undefined ? "location unknown" : eventItem.locationString) +
+            "<br />" +
+            (eventItem.date == undefined ? "" : eventItem.date) +
 			    "</div>" + 
 			  "</div></div>"+
 		  "</td>"+
