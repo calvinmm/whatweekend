@@ -24,10 +24,9 @@ body
   text-overflow : ellipsis;
   -o-text-overflow: ellipsis;
   white-space: nowrap;
-
+  display: inline-block;
   font-weight: bold;
 	padding-left: 10px;
-	float: left;
 }
 
 .item-tile

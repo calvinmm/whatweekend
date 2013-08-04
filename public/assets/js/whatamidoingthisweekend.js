@@ -1,16 +1,31 @@
 function renderSuggestedEvents() {
   var newHtml = "";
-
-
-  document.getElement("suggested-places").innerHtml = newHtml;
+  for(i = 0; i < window.suggestedEvents.length && i < 5; i++) {
+			newHtml += addEvent(window.suggestedEvents[i], false);
+  } 
+  $("#suggested-events").html(newHtml);
 }
 
 function renderSuggestedPlaces() {
-  
+  var newHtml = "";
+  for(i = 0; i < window.suggestedPlaces.length && i < 5; i++) {
+			newHtml += addPlace(window.suggestedPlaces[i], false);
+  }
+
+  $("#suggested-places").html(newHtml);
 }
 
 function renderPlannedActivities() {  
-  
+  var newHtml = "";
+  for(i = 0; i < window.plannedActivities.length; i++) {
+      if (window.plannedActivities[i].type == 'event') {
+			  newHtml += addEvent(window.plannedActivities[i].obj, false);
+      } else {
+			  newHtml += addPlace(window.plannedActivities[i].obj, false);
+      }
+  }
+  $("#planned-activities").html(newHtml);
+  $("#planned-activities").find(".button-want").hide();
 }
 
 function drawBestLists(suggestedPlaces, suggestedEvents) {
@@ -26,8 +41,8 @@ function drawBestLists(suggestedPlaces, suggestedEvents) {
 		{
 			eventsInnerHtml += addEvent(suggestedEvents[i], i >= 5);
 		}
-		document.getElementById("suggested-places").innerHTML = placesInnerHtml;
-		document.getElementById("suggested-events").innerHTML = eventsInnerHtml;
+		$("#suggested-places").html(placesInnerHtml);
+		$("#suggested-events").html(eventsInnerHtml);
 }
 
 function stars(rating) {
@@ -56,7 +71,7 @@ function stars(rating) {
 }
 
 function addPlace(place, hide) {
-  place.id = encodeURI(place.title);
+  place.id = Math.floor(Math.random() * 1000000000 + 1);
 	var starsString = stars(place.rating);
   var temp_thing = "<img class='item-img' src='" + place.image + 
           "' alt='Planned Image' height='100' width='100'>";
@@ -68,6 +83,7 @@ function addPlace(place, hide) {
           "<a target='_blank' href='" + 
             (place.url == undefined ? "#" : place.url) + "'>" + place.title + 
           "</a>" +  
+			    "<span class='checkxbuttons'><button id='buttonwant"+place.id +"' type='button' class='btn btn-success button-want'><i class='icon-ok'></i></button> <button id='buttonremove"+place.id + "'type='button' class='btn btn-danger button-remove'><i class='icon-remove'></i></button></span>"+
         "</div>" +
 			  "<div class='item-tile activity-item'>" + 
 		      (place.image == undefined ? "<img class='item-img' height='100' width='100' src='assets/img/noimage.jpg'>" : temp_thing) + 
@@ -76,7 +92,6 @@ function addPlace(place, hide) {
             "<br/>" +
             starsString + 
   			  "</div>" + 
-			    "<span class='checkxbuttons'><button id='buttonwant"+place.id +"' type='button' class='btn btn-success button-want'><i class='icon-ok'></i></button> <button id='buttonremove"+place.id + "'type='button' class='btn btn-danger button-remove'><i class='icon-remove'></i></button></span>"+
 			  "</div></div>"+
 		  "</td>"+
 		"</tr>";
@@ -85,7 +100,7 @@ function addPlace(place, hide) {
 
 function addEvent(eventItem, hide)
 {
-  eventItem.id = encodeURI(eventItem.title);
+  eventItem.id = Math.floor(Math.random() * 1000000000 + 1);
 	var toReturn =
     "<tr id='event" + eventItem.id+"' style='" + (hide ? "display: none;" : "") + "'>" + 
 			"<td>" + 
@@ -94,12 +109,12 @@ function addEvent(eventItem, hide)
           "<a target='_blank' href='"+ 
           (eventItem.url == undefined ? "#" : eventItem.url)+"'>" + 
           eventItem.title + "</a>" + 
+			    "<span class='checkxbuttons'><button id='buttonwant" + eventItem.id +"' type='button' class='btn btn-success button-want'><i class='icon-ok'></i></button> <button id='buttonremove"+eventItem.id + "'type='button' class='btn btn-danger button-remove'><i class='icon-remove'></i></button></span>"+
         "</div>" +
 			  "<div class='item-tile activity-item'>" + 
-			    "<div class='item-content activity-item'>"
+			    "<div class='item-content activity-item'>" +
 			      eventItem.locationString + 
 			    "</div>" + 
-			    "<span class='checkxbuttons'><button id='buttonwant" + eventItem.id +"' type='button' class='btn btn-success button-want'><i class='icon-ok'></i></button> <button id='buttonremove"+eventItem.id + "'type='button' class='btn btn-danger button-remove'><i class='icon-remove'></i></button></span>"+
 			  "</div></div>"+
 		  "</td>"+
 		"</tr>";
@@ -113,11 +128,14 @@ function displayThings(activities) {
 	window.plannedActivities = new Array();
    
   drawBestLists(suggestedPlaces, suggestedEvents);
-  
+  attachListeners(); 
+}
+
+function attachListeners() {
   $('.button-remove').click(function() {
 		var currId = $(this).attr('id');
 		currId = currId.substring("buttonremove".length);
-	  $('#event' + currId).hide();
+	  $('#event' + currId).fadeOut();
 	});
 	
 	$('.button-want').click(function() {
@@ -144,38 +162,31 @@ function displayThings(activities) {
 		}
     
     if (type == "place") {
-      $('#place' + currId).hide();
+      $('#place' + currId).fadeOut(function() {
+        var object = window.suggestedPlaces.splice(index, 1)[0];
+        renderSuggestedPlaces();
+        appendPlace(object);
+        attachListeners();
+      });
 		} else {
-      $('#event' + currId).hide();
-    }
-
-    // slice out the added thing
-    var object;
-    if (type == "place") {
-      object = window.suggestedPlaces(index, 1)[0];
-		} else {
-      object = window.suggestedEvents(index, 1)[0];
-    }
-    // append to the plannedActivities
-
-    renderSuggestedEvents();
-    renderSuggestedPlaces();
-    if (type == "place") {
-		  appendPlace(object);
-    } else {
-      appendEvent(object);
-    }
-	});
+      $('#event' + currId).fadeOut(function () {
+        var object = window.suggestedEvents.splice(index, 1)[0];
+        renderSuggestedEvents();
+        appendEvent(object);
+        attachListeners(); 
+      });
+    } 
+  });
 }
 
 function appendPlace(place) {
   var toAdd = addPlace(place, false);
-  window.plannedActivities.add({type: "place", obj: place});
+  window.plannedActivities.push({type: "place", obj: place});
   renderPlannedActivities();
 }
 
 function appendEvent(eventItem) {
   var toAdd = addEvent(eventItem, false);
-  window.plannedActivities.add({type: "event", obj: eventItem});
+  window.plannedActivities.push({type: "event", obj: eventItem});
   renderPlannedActivities();
 }

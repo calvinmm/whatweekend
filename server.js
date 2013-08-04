@@ -2,7 +2,8 @@ var express = require('express'),
   app = express(),
   server = require('http').createServer(app),
   jquery = require('jquery'),
-  graph = require('fbgraph');
+  graph = require('fbgraph'),
+  EventBrite = require('eventbrite');
 
 var yelp = require("yelp").createClient({
 	consumer_key: "Mgx8tTDuckOqg6SRwo0xXw",
@@ -24,11 +25,8 @@ var googleKey = 'AIzaSyBB_GWDaFo8MeewytsNAEqNlQkFCwI06As';
 
 var googlePlaces = new GooglePlaces(googleKey);
 
-/*var Eventbrite = require('eventbrite');
-
 var eventbrite_key = 'ILKRGFR2MTYO67PCJ7';
-
-var eb_client = new Eventbrite({'app_key': eventbrite_key});*/
+var eb_client = new EventBrite({'app_key': eventbrite_key});
 
 app.configure(function() {
   app.use(express.static(__dirname + '/public'));
@@ -50,11 +48,11 @@ app.post('/places', function(req, res) {
   var yelpDeferred = queryYelp(latitude, longitude);
   var googleDeferred = queryGoogle(latitude, longitude);
   var facebookDeferred = queryFacebook(accessToken, latitude, longitude);
-	//var eventbriteDeferred = queryEventbrite(latitude, longitude);
+	var eventbriteDeferred = queryEventbrite(latitude, longitude);
 
-  jquery.when(yelpDeferred, googleDeferred, facebookDeferred/*, eventbriteDeferred*/).done(
-      function(yelpActivities, googleActivities, facebookActivities/*, eventbriteActivities*/) { 
-          combineActivities(res, yelpActivities, googleActivities, facebookActivities/*, eventbriteActivities*/);
+  jquery.when(yelpDeferred, googleDeferred, facebookDeferred, eventbriteDeferred).done(
+      function(yelpActivities, googleActivities, facebookActivities, eventbriteActivities) { 
+          combineActivities(res, yelpActivities, googleActivities, facebookActivities, eventbriteActivities);
   });
 });
 
@@ -139,38 +137,53 @@ function queryGoogle(latitude, longitude) {
   return deferred;
 }
 
-/*function queryEventbrite(lat, lng) {
-        // array rused to hold return data
-	var deferred = jquery.Deferred();
-	var activities = {events : [], places : []};
+function queryEventbrite(lat, lng) {
+  // array rused to hold return data
+  var deferred = jquery.Deferred();
+  var activities = {events : [], places : []};
 
-	var events = [];
-	// Get date! Can filter events by it.
-	var startDate, endDate;  // YYYY
-	var goodCategories = "comedy,food,movies,music,outdoors,social,sports,entertainment";
-	eb_client.event_search({within:10, within_unit:"K", latitude:lat, longitude:lng, date:startDate+" "+endDate, category:goodCategories}, function(error, response) {
-		if (error) {
-			deferred.reject(error);
-		}
-		// First element is a "summary"
-		for (var i = 1; i < response.events.length; i++) {
-			var event = response.events[i].event;
-			var event_object = {
-				title:'hi',//jquery(event.title).text(),
-				description:'hi',//jquery(event.description).text(),
-				location: event.venue.address+", "+event.venue.city+", "+event.venue.region+", "+event.venue.country_code,
-				link:event.url,
-				start:5,// parse event.start_date
-				end:6,// parse event.end_date
-				src:"eventbrite"
-			};
-			events.push(event_object);  
-		}
-		activities.events = events;
-		deferred.resolve(activities);
-	});
-	return deferred;
-}*/
+  var events = [];
+  // Get date! Can filter events by it.
+  // var startDate, endDate;  // YYYY
+  var startDate = formatDate(new Date(getWeekendDate()));
+
+  var goodCategories = "comedy,food,movies,music,outdoors,social,sports,entertainment";
+  eb_client.event_search({within:100, within_unit:"K", latitude:lat, longitude:lng, date:startDate+" "+startDate, category:goodCategories, max:100}, function(error, response) {
+    if (error) {
+      deferred.reject(error);
+    }
+    // First element is a "summary"
+
+    for (var i = 1; i < response.events.length; i++) {
+      var event = response.events[i].event;
+
+      // YOLO HACK
+      var title = "<h1>" + event.title.trim().replace(/\n/g, " ").replace(/\r/g, " ") + "</h1>";
+      var desc = "<h1>" + event.description.trim().replace(/\n/g, " ").replace(/\r/g, " ") + "</h1>";
+
+      // yo yo what the hell, remove those results!!!
+      var d = new Date(getWeekendDate());
+      var e = new Date(event.start_date.replace(/-/g, "/").split(" ")[0]);
+
+      if (e >= d) {
+        var event_object = {
+          title: jquery(title).text(),
+          description: jquery(desc).text(),
+          location: event.venue.address+", "+event.venue.city+", "+event.venue.region+", "+event.venue.country_code,
+          link:event.url,
+          start: new Date(event.start_date.replace(/-/g, "/").split(" ")[0]).getTime(),
+          end: new Date(event.end_date.replace(/-/g, "/").split(" ")[0]).getTime(),
+          src:"eventbrite"
+        };
+        events.push(event_object);  
+      }
+    }
+
+    activities.events = events;
+    deferred.resolve(activities);
+  });
+  return deferred;
+}
 
 function queryFacebook(accessToken, latitude, longitude) {
   var deferred = jquery.Deferred();
@@ -208,18 +221,21 @@ function queryFacebook(accessToken, latitude, longitude) {
   return deferred;
 }
 
-function combineActivities(res, yelpActivities, googleActivities, facebookActivities/*, eventbriteActivities*/) {
+function combineActivities(res, yelpActivities, googleActivities, facebookActivities, eventbriteActivities) {
   var activities = {events : [], places : []};
   
   // Combine all activities and places
+  activities.places = activities.places.concat(eventbriteActivities.places);
+  activities.events = activities.events.concat(eventbriteActivities.events);
+
   activities.places = activities.places.concat(yelpActivities.places);
   activities.events = activities.events.concat(yelpActivities.events);
+
   activities.places = activities.places.concat(googleActivities.places);
   activities.events = activities.events.concat(googleActivities.events);
+
   activities.places = activities.places.concat(facebookActivities.places);
   activities.events = activities.events.concat(facebookActivities.events);
-	// activities.places = activities.places.concat(eventbriteActivities.places);
-	// activities.events = activities.events.concat(eventbriteActivities.events);
 
   activities.places.sort(placesSort);
   res.send(activities);
@@ -235,4 +251,33 @@ function placesSort(o1, o2) {
     val2 -= .6;
   }
   return val2 - val1;
+}
+
+function getWeekendDate() {
+  // figure out weekend
+  var today = new Date();
+  var eventDate = undefined;
+
+  if (today.getDay() == 0) {
+    eventDate = new Date(today);
+  } else {
+    eventDate = new Date(today.setDate(today.getDate() + 6 - today.getDay()));
+  }
+  return eventDate.getTime();
+}
+
+function formatDate(d) {
+  // give me the d
+  var day = d.getDate().toString();
+  var month = (d.getMonth() + 1).toString();
+  var year = d.getFullYear().toString();
+
+  if (day.length == 1) {
+    day = "0" + day;
+  }
+  if (month.length == 1) {
+    month = "0" + month;
+  }
+
+  return year + "-" + month + "-" + day;
 }
