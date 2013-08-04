@@ -117,7 +117,7 @@ function queryGoogle(latitude, longitude) {
 				locationString: place.vicinity,
 				rating: place.rating,
 				image: place.icon,
-        			src: "google"
+        src: "google"
 			};
 
 			// check if we have a photo
