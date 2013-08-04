@@ -236,6 +236,13 @@ function queryFacebook(accessToken, latitude, longitude) {
     var eventList = data.data;
     var goodEvents = [];
     for (var i = 0; i < eventList.length; i++) {
+			var title = eventList[i];
+			for (var j = 0; j < title.length; j++) {
+				if (title.charCodeAt(j) >= 128) {
+					console.log('fuck these unicode bitches');
+					continue;
+				}
+			}
       var eventObject = {
         title: eventList[i].name,
         locationString: eventList[i].location,
