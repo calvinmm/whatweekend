@@ -10,6 +10,13 @@ var yelp = require("yelp").createClient({
 	token_secret: "-b76j1LnR23hw-2VRY-sZy_Iz9o"
 });
 
+var GooglePlaces = require('google-places');
+
+var googleKey = 'AIzaSyBB_GWDaFo8MeewytsNAEqNlQkFCwI06As';
+
+var googlePlaces = new GooglePlaces(googleKey);
+
+
 app.configure(function() {
   app.use(express.static(__dirname + '/public'));
   app.use(express.bodyParser());
@@ -72,10 +79,40 @@ function queryYelp(latitude, longitude) {
 function queryGoogle(latitude, longitude) {
   var deferred = jquery.Deferred();
   var activities = {events : [], places : []};
-  
-  // populate activities in the async call and call this
-  deferred.resolve(activities);
-  
+  var places = [];
+
+	googlePlaces.search(
+      {location: [latitude, longitude], keyword: "tourist", radius: 10000}, 
+      function(error, data) {
+		
+    if (error) {
+      deferred.reject(error);
+    }
+    for (var index = 0; index < data.results.length; index++) {
+			var place = data.results[index];
+
+			// build our place object
+			var placeObject = {
+				title: place.name,
+				location: place.vicinity,
+				rating: place.rating,
+				image: place.icon
+			};
+
+			// check if we have a photo
+			if (place.photos) {
+				var photoUrl = "https://maps.googleapis.com/maps/api/place/photo?sensor=false";
+				photoUrl += "&key=" + googleKey;
+				photoUrl += "&photoreference=" + place.photos[0].photo_reference;
+				photoUrl += "&maxwidth=100&maxheight=100"
+
+				placeObject.image = photoUrl;
+			}
+			places.push(placeObject);
+	  }
+    activities.places = places;
+    deferred.resolve(activities);
+	});
   return deferred;
 }
 

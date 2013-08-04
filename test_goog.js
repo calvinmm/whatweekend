@@ -15,11 +15,10 @@ var longitude = -122.3297999;
 getGooglePlacesData(latitude, longitude, google_key);
 
 function getGooglePlacesData(latitude, longitude, google_key) {
-	// arr used to hold return data
-	var arr = [];
+	// array rused to hold return data
+	var google_places = [];
 
 	places.search({location: [latitude, longitude], keyword: "tourist", radius: 10000}, function(error, data) {
-		// console.log(data.next_page_token);
 		for (var index = 0; index < data.results.length; index++) {
 			var place = data.results[index];
 
@@ -41,20 +40,7 @@ function getGooglePlacesData(latitude, longitude, google_key) {
 				place_object.image = photo_url;
 			}
 
-			arr.push(place_object);
-			
-			// check if we have events
-			if (place.events) {
-				for (var i = 0; i < place.events.length; i++) {
-					var event = place.events[i];
-					var event_url = "https://maps.googleapis.com/maps/api/place/event/details/format?sensor=false";
-					event_url += "&key=" + google_key;
-					event_url += "&reference=" + place.reference;
-					event_url += "&event_id" + event.event_id;
-				}
-			}
-
+			google_places.push(place_object);
 		}
-		console.log(arr);
 	});
 }
